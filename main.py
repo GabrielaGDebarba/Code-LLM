@@ -1,4 +1,4 @@
-from server.config import *
+from config import *
 from llm_calls import *
 from utils.rag_utils import rag_call
 import json

@@ -1,6 +1,6 @@
 import numpy as np
 import json
-from server.config import *
+from config import *
 
 # This script is only used as a RAG tool for other scripts.
 

@@ -1,18 +1,26 @@
+import sys
+sys.path.insert(0, "C:/Code-LLM" )
+
+
 from flask import Flask, request, jsonify
-from server.config import *
+from config import *
 from llm_calls import *
 
 app = Flask(__name__)
 
 
-@app.route('/llm_call', methods=['POST'])
+
+
+@app.route('/get_parameters', methods=['POST'])
 def llm_call():
     data = request.get_json()
     input_string = data.get('input', '')
 
-    answer = classify_input(input_string)
+    answer = make_floorplan(input_string) 
+    print(answer)
 
-    return jsonify({'response': answer})
+    return answer
 
 if __name__ == '__main__':
     app.run(debug=True)
+

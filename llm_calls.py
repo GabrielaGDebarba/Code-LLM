@@ -1,23 +1,20 @@
-from server.config import *
+from config import *
+from pydantic import BaseModel
+
+class FloorPlan (BaseModel):
+    area: float
+    room_name: str
+    windows_count: int
 
 
-def classify_input(message):
-    response = client.chat.completions.create(
+def make_floorplan(message):
+    response = client.chat.completions.parse(
         model=completion_model,
         messages=[
             {
                 "role": "system",
                 "content": """
-                        Your task is to classify if the user message is related to buildings and architecture or not.
-                        Output only the classification string.
-                        If it is related, output "Related", if not, output "Refuse to answer".
-
-                        # Example #
-                        User message: "How do I bake cookies?"
-                        Output: "Refuse to answer"
-
-                        User message: "What is the tallest skyscrapper in the world?"
-                        Output: "Related"
+                        Your task is to create a room in an apartment.
                         """,
             },
             {
@@ -27,8 +24,10 @@ def classify_input(message):
                         """,
             },
         ],
+        response_format = FloorPlan,
     )
-    return response.choices[0].message.content
+    return response
+    #return response.choices[0].message.parsed
 
 
 def generate_concept(message):

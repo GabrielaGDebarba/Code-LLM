@@ -1,13 +1,14 @@
+
 import random
 from openai import OpenAI
-from server.keys import *
+from keys import *
 
 # Mode
-mode = "local" # "local" or "openai" or "cloudflare"
+mode = "cloudflare" # "local" or "openai" or "cloudflare"
 
 # API
 local_client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
-openai_client = OpenAI(api_key=OPENAI_API_KEY)
+# openai_client = OpenAI(api_key=OPENAI_API_KEY)
 cloudflare_client = OpenAI(base_url = f"https://api.cloudflare.com/client/v4/accounts/{CLOUDFLARE_ACCOUNT_ID}/ai/v1", api_key = CLOUDFLARE_API_KEY)
 
 
