@@ -8,7 +8,7 @@ from llm_calls import *
 
 app = Flask(__name__)
 
-
+# isto foi uma mudanca
 
 
 @app.route('/get_parameters', methods=['POST'])
