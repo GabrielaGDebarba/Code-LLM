@@ -1,67 +1,39 @@
 
 import random
-from openai import OpenAI
 from keys import *
+import requests
 
 # Mode
-mode = "cloudflare" # "local" or "openai" or "cloudflare"
+mode = "cloudflare"  # Only cloudflare mode supported now
 
-# API
-local_client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
-# openai_client = OpenAI(api_key=OPENAI_API_KEY)
-cloudflare_client = OpenAI(base_url = f"https://api.cloudflare.com/client/v4/accounts/{CLOUDFLARE_ACCOUNT_ID}/ai/v1", api_key = CLOUDFLARE_API_KEY)
-
-
-# Embedding Models
-local_embedding_model = "nomic-ai/nomic-embed-text-v1.5-GGUF"
-cloudflare_embedding_model = "@cf/baai/bge-base-en-v1.5"
-openai_embedding_model = "text-embedding-3-small"
-
-# Notice how this model is not running locally. It uses an OpenAI key.
-gpt4o = [
-        {
-            "model": "gpt-4o",
-            "api_key": OPENAI_API_KEY,
-            "cache_seed": random.randint(0, 100000),
+class CloudflareAI:
+    def __init__(self, account_id, api_key, model):
+        self.account_id = account_id
+        self.api_key = api_key
+        self.model = model
+        # Correct URL format with model in path
+        self.base_url = f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/run/{model}"
+        
+    def run(self, messages, max_tokens=500, **kwargs):
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
         }
-]
-
-# Notice how this model is running locally. Uses local server with LMStudio
-llama3 = [
-        {
-            "model": "lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF", #change this to point to a new model
-            'api_key': 'any string here is fine',
-            'api_type': 'openai',
-            'base_url': "http://127.0.0.1:1234",
-            "cache_seed": random.randint(0, 100000),
+        data = {
+            "messages": messages,
+            "max_tokens": max_tokens
         }
-]
+        
+        # Allow overriding params via kwargs
+        data.update(kwargs)
+        
+        response = requests.post(self.base_url, headers=headers, json=data)
+        response.raise_for_status()
+        return response.json()
 
-# This is a cloudflare model
-cloudflare_model = "@hf/nousresearch/hermes-2-pro-mistral-7b"
+# Initialize Cloudflare client
+cloudflare_model = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"  # Using a more widely available model
+client = CloudflareAI(CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_KEY, cloudflare_model)
 
-# Define what models to use according to chosen "mode"
-def api_mode (mode):
-    if mode == "local":
-        client = local_client
-        completion_model = llama3[0]['model']
-        embedding_model = local_embedding_model
-        return client, completion_model, embedding_model
-    
-    if mode == "cloudflare":
-        client = cloudflare_client
-        completion_model = cloudflare_model
-        embedding_model = cloudflare_embedding_model
-        return client, completion_model, embedding_model
-    
-    elif mode == "openai":
-        client = openai_client
-        completion_model = gpt4o
-        completion_model = completion_model[0]['model']
-        embedding_model = openai_embedding_model
-
-        return client, completion_model, embedding_model
-    else:
-        raise ValueError("Please specify if you want to run local or openai models")
-
-client, completion_model, embedding_model = api_mode(mode)
+# Embedding model for reference (if needed later)
+embedding_model = "@cf/baai/bge-base-en-v1.5"

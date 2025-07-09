@@ -1,0 +1,32 @@
+{
+    "room_count": 4,
+    "total_area": 220.5,
+    "room_types": ["Living Room", "Kitchen", "Bedroom", "Bathroom"],
+    "rooms": [
+      {
+        "type": "Living Room",
+        "window_counts": 3,
+        "area": 70.0,
+        "connects_to": "Kitchen, Bedroom"
+      },
+      {
+        "type": "Kitchen",
+        "window_counts": 1,
+        "area": 40.0,
+        "connects_to": "Living Room"
+      },
+      {
+        "type": "Bedroom",
+        "window_counts": 2,
+        "area": 60.5,
+        "connects_to": "Living Room, Bathroom"
+      },
+      {
+        "type": "Bathroom",
+        "window_counts": 0,
+        "area": 50.0,
+        "connects_to": "Bedroom"
+      }
+    ]
+  }
+  

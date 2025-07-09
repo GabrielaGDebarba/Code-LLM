@@ -1,39 +1,84 @@
-from config import *
+from config import client
 from pydantic import BaseModel
 
-class FloorPlan (BaseModel):
+class FloorPlan(BaseModel):
     area: float
     room_name: str
     windows_count: int
 
-
 def make_floorplan(message):
-    response = client.chat.completions.parse(
-        model=completion_model,
-        messages=[
+    # Ensure message is clean of any problematic quotes
+    message = str(message).strip("'").replace("'", "")
+    
+    data = {
+        "messages": [
             {
                 "role": "system",
                 "content": """
-                        Your task is to create a room in an apartment.
+                        Your task is to create a floor plan with multiple rooms in an apartment.
+                        According to the user's request, carefully think of a layout that would suit its request.
+                        - room_count: number of rooms in the apartment
+                        - total_area: total area of the apartment
+                        - room_types: types of rooms in the apartment
+                        - rooms: list of rooms in the apartment
+                        Each room should have the following properties:
+                        - type: function of room (e.g. living room, kitchen, bedroom, bathroom)
+                        - window_counts: number of windows in the room
+                        - area: area of the room
+                        - connects_to: list of rooms that the current room connects to
+                        
+                        Output your response in the following JSON format.
                         """,
             },
             {
                 "role": "user",
-                "content": f"""
-                        {message}
-                        """,
+                "content": message,
             },
         ],
-        response_format = FloorPlan,
-    )
-    return response
-    #return response.choices[0].message.parsed
-
+        "response_format": {
+            "type": "json_schema", 
+            "json_schema": {
+                "name": "floorplan_output",
+                "schema": {
+                    "type": "object",
+                    "properties": { # AQUI QUE PODES ADICIONAR MAIS PROPRIEDADES GERAIS DA CASA
+                        "room_count": {"type": "integer"},
+                        "total_area": {"type": "number"},
+                        "room_types": {
+                            "type": "array",
+                            "items": {"type": "string"}
+                        },
+                        "rooms": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": { # AQUI QUE PODES ADICIONAR MAIS PROPRIEDADES DE CADA ROOM
+                                    "type": {"type": "string"},
+                                    "window_counts": {"type": "integer"},
+                                    "area": {"type": "number"},
+                                    "connects_to": {
+                                        "type": "array",
+                                        "items": {"type": "string"}
+                                    }
+                                },
+                                "required": ["type", "window_counts", "area", "connects_to"]
+                            }
+                        }
+                    },
+                    "required": ["room_count", "total_area", "room_types", "rooms"],
+                    "additionalProperties": False
+                },
+                "strict": True
+            }
+        }
+    }
+    result = client.run(**data)
+    response_data = result["result"]["response"]
+    return response_data
 
 def generate_concept(message):
-    response = client.chat.completions.create(
-        model=completion_model,
-        messages=[
+    data = {
+        "messages": [
             {
                 "role": "system",
                 "content": """
@@ -52,39 +97,21 @@ def generate_concept(message):
                         Initial information: {message}
                         """,
             },
-        ],
-    )
-    return response.choices[0].message.content
+        ]
+    }
+    
+    result = client.run(**data)
+    return result["result"]["response"]
 
 def extract_attributes(message):
-    response = client.chat.completions.create(
-        model=completion_model,
-        messages=[
+    data = {
+        "messages": [
             {
                 "role": "system",
                 "content": """
-
                         # Instructions #
                         You are a keyword extraction assistant.
-                        Your task is to read a given text and extract relevant keywords according to three categories: shape, theme, and materials.
-                        Only output a JSON object in the following format:
-                        {
-                            "shape": "keyword1, keyword2",
-                            "theme": "keyword3, keyword4",
-                            "materials": "keyword5, keyword6"
-                        }
-
-                        # Rules #
-                        If a category has no relevant keywords, write "None" for that field.
-                        Separate multiple keywords in the same field by commas without any additional text.
-                        Do not include explanations, introductions, or any extra information—only output the JSON.
-                        Focus on concise, meaningful keywords directly related to the given categories.
-                        Do not try to format the json output with characters like ```json
-
-                        # Category guidelines #
-                        Shape: Words that describe form, geometry, structure (e.g., circle, rectangular, twisting, modular).
-                        Theme: Words related to the overall idea, feeling, or concept (e.g., minimalism, nature, industrial, cozy).
-                        Materials: Specific physical materials mentioned (e.g., wood, concrete, glass, steel).
+                        Your task is to read a given text and extract relevant keywords according to three categories.
                         """,
             },
             {
@@ -95,14 +122,31 @@ def extract_attributes(message):
                         """,
             },
         ],
-    )
-    return response.choices[0].message.content
-
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "attributes_output",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "shape": {"type": "string"},
+                        "theme": {"type": "string"},
+                        "materials": {"type": "string"}
+                    },
+                    "required": ["shape", "theme", "materials"],
+                    "additionalProperties": False
+                },
+                "strict": True
+            }
+        }
+    }
+    
+    result = client.run(**data)
+    return result["result"]["response"]
 
 def create_question(message):
-    response = client.chat.completions.create(
-        model=completion_model,
-        messages=[
+    data = {
+        "messages": [
             {
                 "role": "system",
                 "content": """
@@ -113,25 +157,14 @@ def create_question(message):
                         Imagine the question will be answered using a detailed text about brutalist architecture.
                         The question should feel exploratory and intellectually curious.
                         Output only the question, without any extra text.
-
-                        # Examples #
-                        - What are some brutalist buildings that embody a strong relationship with the landscape?
-                        - Which brutalist structures are known for their monumental scale and raw materiality?
-                        - Can you name brutalist buildings that incorporate unexpected geometries or playful spatial compositions?
-                        - What are examples of brutalist projects that explore the idea of community or collective living?
-                        - Which architects pushed the limits of brutalist design through experimental forms?
-
-                        # Important #
-                        Keep the question open-ended, inviting multiple references or examples.
-                        The question must be naturally connected to the themes present in the input text.
                         """,
             },
             {
                 "role": "user",
-                "content": f"""
-                        {message}
-                        """,
+                "content": message,
             },
-        ],
-    )
-    return response.choices[0].message.content
+        ]
+    }
+    
+    result = client.run(**data)
+    return result["result"]["response"]
