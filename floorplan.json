@@ -1,31 +1,106 @@
 {
-    "room_count": 4,
-    "total_area": 220.5,
-    "room_types": ["Living Room", "Kitchen", "Bedroom", "Bathroom"],
+    "building_type": "apartment",
+    "site_location": "Guimarães",
+    "entrance_orientation": "north",
+    "room_count": 12,
+    "total_area": 67.0,
+    "room_types": ["Foyer", "Living Room", "Dining Room", "Kitchen", "Laundry", "Toilet", "Corridor", "Office", "Bedroom 1","Bedroom 2", "Bathroom 1", "Bathroom 2"],
     "rooms": [
       {
+        "type": "Foyer",
+        "window_counts": 0,
+        "area": 2.0,
+        "connects_to": "Living Room, Toilet",
+        "solar_orientation": "",
+        "noise_level": "high"
+      },
+      {
         "type": "Living Room",
-        "window_counts": 3,
-        "area": 70.0,
-        "connects_to": "Kitchen, Bedroom"
+        "window_counts": 1,
+        "area": 10.0,
+        "connects_to": "Foyer, Dining Room, Kitchen, Corridor",
+        "solar_orientation": "south, west, east",
+        "noise_level": "medium, low"
+      },
+      {
+        "type": "Dining Room",
+        "window_counts": 0,
+        "area": 8.0,
+        "connects_to": "Living Room, Kitchen",
+        "solar_orientation": "",
+        "noise_level": "medium, low"
       },
       {
         "type": "Kitchen",
         "window_counts": 1,
-        "area": 40.0,
-        "connects_to": "Living Room"
+        "area": 6.0,
+        "connects_to": "Living Room, Dining Room, Laundry",
+        "solar_orientation": "north, west, east",
+        "noise_level": "medium, low"
       },
       {
-        "type": "Bedroom",
-        "window_counts": 2,
-        "area": 60.5,
-        "connects_to": "Living Room, Bathroom"
+        "type": "Laundry",
+        "window_counts": 1,
+        "area": 3.0,
+        "connects_to": "Kitchen",
+        "solar_orientation": "north, west, east",
+        "noise_level": "high, medium"
       },
       {
-        "type": "Bathroom",
+        "type": "Toilet",
         "window_counts": 0,
-        "area": 50.0,
-        "connects_to": "Bedroom"
+        "area": 2.0,
+        "connects_to": "Foyer",
+        "solar_orientation": "",
+        "noise_level": "high"
+      },
+      {
+        "type": "Corridor",
+        "window_counts": 0,
+        "area": 6.0,
+        "connects_to": "Living Room, Office, Bedroom 1, Bedroom 2",
+        "solar_orientation": "",
+        "noise_level": "medium, low"
+      },
+      {
+        "type": "Office",
+        "window_counts": 1,
+        "area": 6.0,
+        "connects_to": "Corridor",
+        "solar_orientation": "south, west, east",
+        "noise_level": "medium, low"
+      },
+      {
+        "type": "Bedroom 1",
+        "window_counts": 1,
+        "area": 9.0,
+        "connects_to": "Corridor, Bathroom 1",
+        "solar_orientation": "south, west, east",
+        "noise_level": "medium, low"
+      },
+      {
+        "type": "Bathroom 1",
+        "window_counts": 0,
+        "area": 4.0,
+        "connects_to": "Bedroom 1",
+        "solar_orientation": "",
+        "noise_level": "medium, lowh"
+      },
+      {
+        "type": "Bedroom 2",
+        "window_counts": 1,
+        "area": 7.0,
+        "connects_to": "Corridor, Bathroom 2",
+        "solar_orientation": "south, west, east",
+        "noise_level": "medium, low"
+      },
+      {
+        "type": "Bathroom 2",
+        "window_counts": 0,
+        "area": 4.0,
+        "connects_to": "Bedroom 2",
+        "solar_orientation": "",
+        "noise_level": "medium, low"
       }
     ]
   }

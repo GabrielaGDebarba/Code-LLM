@@ -5,6 +5,7 @@ class FloorPlan(BaseModel):
     area: float
     room_name: str
     windows_count: int
+# não deveria ser type, window_counts, area, connects_to... ?
 
 def make_floorplan(message):
     # Ensure message is clean of any problematic quotes
@@ -17,6 +18,9 @@ def make_floorplan(message):
                 "content": """
                         Your task is to create a floor plan with multiple rooms in an apartment.
                         According to the user's request, carefully think of a layout that would suit its request.
+                        - building_type: if it is an apartment or a house
+                        - site_location: the city where the site is located to get climate information
+                        - entrance_orientation: orientation of the entrance door (e.g. north, south, east, west)
                         - room_count: number of rooms in the apartment
                         - total_area: total area of the apartment
                         - room_types: types of rooms in the apartment
@@ -26,6 +30,8 @@ def make_floorplan(message):
                         - window_counts: number of windows in the room
                         - area: area of the room
                         - connects_to: list of rooms that the current room connects to
+                        - solar_orientation: orientation of the room relative to the sun (e.g. north, south, east, west)
+                        - noise_level: if the room can have low, medium or high level of noise
                         
                         Output your response in the following JSON format.
                         """,
@@ -42,6 +48,9 @@ def make_floorplan(message):
                 "schema": {
                     "type": "object",
                     "properties": { # AQUI QUE PODES ADICIONAR MAIS PROPRIEDADES GERAIS DA CASA
+                        "building_type": {"type": "string"},
+                        "site_location": {"type": "string"},
+                        "entrance_orientation": {"type": "string"},
                         "room_count": {"type": "integer"},
                         "total_area": {"type": "number"},
                         "room_types": {
@@ -58,14 +67,16 @@ def make_floorplan(message):
                                     "area": {"type": "number"},
                                     "connects_to": {
                                         "type": "array",
-                                        "items": {"type": "string"}
-                                    }
+                                        "items": {"type": "string"}                            
+                                    },
+                                    "solar_orientation": {"type": "string"},
+                                    "noise_level": {"type": "string"}                                
                                 },
-                                "required": ["type", "window_counts", "area", "connects_to"]
+                                "required": ["type", "window_counts", "area", "connects_to", "solar_orientation", "noise_level"]
                             }
                         }
                     },
-                    "required": ["room_count", "total_area", "room_types", "rooms"],
+                    "required": ["building_type", "site_location", "entrance_orientation" "room_count", "total_area", "room_types", "rooms"],
                     "additionalProperties": False
                 },
                 "strict": True
