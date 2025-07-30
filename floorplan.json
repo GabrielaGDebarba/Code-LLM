@@ -1,6 +1,15 @@
 {
-    "building_type": "apartment",
+    "building_type": "Apartment",
     "site_location": "Guimarães",
+    "site_dimension":{
+      "width": 15,
+      "length": 22
+    },
+    "site_setback":{
+      "front": 3,
+      "side": 5,
+      "rear": 5
+    },
     "entrance_orientation": "north",
     "room_count": 12,
     "total_area": 67.0,

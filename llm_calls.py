@@ -20,6 +20,9 @@ def make_floorplan(message):
                         According to the user's request, carefully think of a layout that would suit its request.
                         - building_type: if it is an apartment or a house
                         - site_location: the city where the site is located to get climate information
+                        - site_dimension_width: width of the terrain
+                        - site_dimension_length: width of the terrain
+                        - site_setback: mandatory minimum distance between the building and the terrain boundaries
                         - entrance_orientation: orientation of the entrance door (e.g. north, south, east, west)
                         - room_count: number of rooms in the apartment
                         - total_area: total area of the apartment
@@ -50,6 +53,16 @@ def make_floorplan(message):
                     "properties": { # AQUI QUE PODES ADICIONAR MAIS PROPRIEDADES GERAIS DA CASA
                         "building_type": {"type": "string"},
                         "site_location": {"type": "string"},
+                        "site_dimension":{
+                            "width":{"type": "number"},
+                            "length": {"type": "number"},
+                        },
+                        "site_dimension_length": {"type": "number"},
+                        "site_setback":{
+                            "front":{"type": "number"},
+                            "side":{"type": "number"},
+                            "rear":{"type": "number"},
+                        },
                         "entrance_orientation": {"type": "string"},
                         "room_count": {"type": "integer"},
                         "total_area": {"type": "number"},
@@ -76,7 +89,7 @@ def make_floorplan(message):
                             }
                         }
                     },
-                    "required": ["building_type", "site_location", "entrance_orientation" "room_count", "total_area", "room_types", "rooms"],
+                    "required": ["building_type", "site_location", "site_dimension_width", "site_dimension_length", "entrance_orientation" "room_count", "total_area", "room_types", "rooms"],
                     "additionalProperties": False
                 },
                 "strict": True
