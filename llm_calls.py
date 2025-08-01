@@ -20,8 +20,7 @@ def make_floorplan(message):
                         According to the user's request, carefully think of a layout that would suit its request.
                         - building_type: if it is an apartment or a house
                         - site_location: the city where the site is located to get climate information
-                        - site_dimension_width: width of the terrain
-                        - site_dimension_length: width of the terrain
+                        - site_dimension: width and legnth of the terrain
                         - site_setback: mandatory minimum distance between the building and the terrain boundaries
                         - entrance_orientation: orientation of the entrance door (e.g. north, south, east, west)
                         - room_count: number of rooms in the apartment
@@ -36,7 +35,12 @@ def make_floorplan(message):
                         - solar_orientation: orientation of the room relative to the sun (e.g. north, south, east, west)
                         - noise_level: if the room can have low, medium or high level of noise
                         
-                        Output your response in the following JSON format.
+                        Output your response in the following JSON format.   
+                        If you cannot determine a value:
+                        - For strings: write the string "none"
+                        - For numbers or integers: write 0
+                        Do not leave any required field missing.
+                        Always respond with all required fields present and filled.                
                         """,
             },
             {
@@ -57,7 +61,6 @@ def make_floorplan(message):
                             "width":{"type": "number"},
                             "length": {"type": "number"},
                         },
-                        "site_dimension_length": {"type": "number"},
                         "site_setback":{
                             "front":{"type": "number"},
                             "side":{"type": "number"},
@@ -89,7 +92,7 @@ def make_floorplan(message):
                             }
                         }
                     },
-                    "required": ["building_type", "site_location", "site_dimension_width", "site_dimension_length", "entrance_orientation" "room_count", "total_area", "room_types", "rooms"],
+                    "required": ["building_type", "site_location", "site_dimension", "entrance_orientation", "room_count", "total_area", "room_types", "rooms"],
                     "additionalProperties": False
                 },
                 "strict": True
