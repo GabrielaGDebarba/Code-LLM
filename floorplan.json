@@ -13,7 +13,7 @@
     "entrance_orientation": "north",
     "room_count": 12,
     "total_area": 67.0,
-    "room_types": ["Foyer", "Living Room", "Dining Room", "Kitchen", "Laundry", "Toilet", "Corridor", "Office", "Bedroom 1","Bedroom 2", "Bathroom 1", "Bathroom 2"],
+    "room_types": ["Foyer", "Living Room", "Dining Room", "Kitchen", "Laundry", "Deposit", "Toilet", "Corridor", "Office", "Bedroom 1","Bedroom 2", "Bathroom 1", "Bathroom 2"],
     "rooms": [
       {
         "type": "Foyer",
@@ -52,6 +52,14 @@
         "window_counts": 1,
         "area": 3.0,
         "connects_to": "Kitchen",
+        "solar_orientation": "north, west, east",
+        "noise_level": "high, medium"
+      },
+      {
+        "type": "Deposit",
+        "window_counts": 1,
+        "area": 5.0,
+        "connects_to": "Laundry",
         "solar_orientation": "north, west, east",
         "noise_level": "high, medium"
       },
