@@ -1,11 +1,6 @@
 from config import client
 from pydantic import BaseModel
 
-class FloorPlan(BaseModel):
-    area: float
-    room_name: str
-    windows_count: int
-# não deveria ser type, window_counts, area, connects_to... ?
 
 def make_floorplan(message):
     # Ensure message is clean of any problematic quotes
@@ -20,27 +15,29 @@ def make_floorplan(message):
                         According to the user's request, carefully think of a layout that would suit its request.
                         - building_type: if it is an apartment or a house
                         - site_location: the city where the site is located to get climate information
-                        - site_dimension: width and legnth of the terrain
+                        - site_dimension: width and length of the terrain
                         - site_setback: mandatory minimum distance between the building and the terrain boundaries
-                        - entrance_orientation: orientation of the entrance door (e.g. north, south, east, west)
                         - room_count: number of rooms in the apartment
                         - total_area: total area of the apartment
                         - room_types: types of rooms in the apartment
                         - rooms: list of rooms in the apartment
                         Each room should have the following properties:
-                        - type: function of room (e.g. living room, kitchen, bedroom, bathroom)
-                        - window_counts: number of windows in the room
-                        - area: area of the room
+                        - type: function of room (e.g. living room, kitchen, bedroom, bathroom), If multiple rooms share the same function, append a number (e.g., "bedroom 1", "bedroom 2")
+                        - window_counts: number of windows in the room. If the user does not specify a value, always set window_counts = 1. Do not infer or guess based on the room type (e.g., living room, bedroom, kitchen). Only use the user-provided value or the default (1).
+                        - area: area of the room, each room's area should be a realistic number and can include decimals (e.g., 14.3, 17.8). Avoid rounding to multiples of 5 or 10.
                         - connects_to: list of rooms that the current room connects to
-                        - solar_orientation: orientation of the room relative to the sun (e.g. north, south, east, west)
-                        - noise_level: if the room can have low, medium or high level of noise
+                        - sun_hours_summer: quantity of hours a room should receive during summer time; if unknown, write 0
+                        - sun_hours_winter: quantity of hours a room should receive during winter time; if unknown, write 0
+                        - noise_level: if the room can have low, medium or high level of noise; if the user did not specify, leave this field null; do not invent values
                         
-                        Output your response in the following JSON format.   
+                        Output your response in the following JSON format.  
+                        Never leave required fields missing, except those explicitly allowed to be null. 
                         If you cannot determine a value:
-                        - For strings: write the string "none"
-                        - For numbers or integers: write 0
-                        Do not leave any required field missing.
-                        Always respond with all required fields present and filled.                
+                        - For strings: use "none"
+                        - For numbers or integers: use 0
+                        Do not invent values for user-specified constraints
+                        Do not leave any required field missing, except fields that are explicitly allowed to be null.
+                        Always ensure all required fields are present and filled according to these rules.                
                         """,
             },
             {
@@ -66,7 +63,6 @@ def make_floorplan(message):
                             "side":{"type": "number"},
                             "rear":{"type": "number"},
                         },
-                        "entrance_orientation": {"type": "string"},
                         "room_count": {"type": "integer"},
                         "total_area": {"type": "number"},
                         "room_types": {
@@ -85,14 +81,15 @@ def make_floorplan(message):
                                         "type": "array",
                                         "items": {"type": "string"}                            
                                     },
-                                    "solar_orientation": {"type": "string"},
-                                    "noise_level": {"type": "string"}                                
+                                    "sun_hours_summer": {"type": "integer"},
+                                    "sun_hours_winter": {"type": "integer"},
+                                    "noise_level": {"type": ["string", "null"]}                               
                                 },
-                                "required": ["type", "window_counts", "area", "connects_to", "solar_orientation", "noise_level"]
+                                "required": ["type", "window_counts", "area", "connects_to", "sun_hours_summer", "sun_hours_winter", "noise_level"]
                             }
                         }
                     },
-                    "required": ["building_type", "site_location", "site_dimension", "entrance_orientation", "room_count", "total_area", "room_types", "rooms"],
+                    "required": ["building_type", "site_location", "site_dimension", "room_count", "total_area", "room_types", "rooms"],
                     "additionalProperties": False
                 },
                 "strict": True
@@ -103,95 +100,3 @@ def make_floorplan(message):
     response_data = result["result"]["response"]
     return response_data
 
-def generate_concept(message):
-    data = {
-        "messages": [
-            {
-                "role": "system",
-                "content": """
-                        You are a visionary intern at a leading architecture firm.
-                        Your task is to craft a short, poetic, and highly imaginative concept for a building design.
-                        Weave the initial information naturally into your idea, letting it inspire creative associations and unexpected imagery.
-                        Your concept should feel bold, evocative, and memorable — like the opening lines of a story.
-                        Keep your response to a maximum of one paragraph.
-                        Avoid generic descriptions; instead, focus on mood, atmosphere, and emotional resonance.
-                        """,
-            },
-            {
-                "role": "user",
-                "content": f"""
-                        What is the concept for this building? 
-                        Initial information: {message}
-                        """,
-            },
-        ]
-    }
-    
-    result = client.run(**data)
-    return result["result"]["response"]
-
-def extract_attributes(message):
-    data = {
-        "messages": [
-            {
-                "role": "system",
-                "content": """
-                        # Instructions #
-                        You are a keyword extraction assistant.
-                        Your task is to read a given text and extract relevant keywords according to three categories.
-                        """,
-            },
-            {
-                "role": "user",
-                "content": f"""
-                        # GIVEN TEXT # 
-                        {message}
-                        """,
-            },
-        ],
-        "response_format": {
-            "type": "json_schema",
-            "json_schema": {
-                "name": "attributes_output",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "shape": {"type": "string"},
-                        "theme": {"type": "string"},
-                        "materials": {"type": "string"}
-                    },
-                    "required": ["shape", "theme", "materials"],
-                    "additionalProperties": False
-                },
-                "strict": True
-            }
-        }
-    }
-    
-    result = client.run(**data)
-    return result["result"]["response"]
-
-def create_question(message):
-    data = {
-        "messages": [
-            {
-                "role": "system",
-                "content": """
-                        # Instruction #
-                        You are a thoughtful research assistant specializing in architecture.
-                        Your task is to create an open-ended question based on the given text.
-                        Your question should invite an answer that points to references to specific brutalist buildings or notable examples.
-                        Imagine the question will be answered using a detailed text about brutalist architecture.
-                        The question should feel exploratory and intellectually curious.
-                        Output only the question, without any extra text.
-                        """,
-            },
-            {
-                "role": "user",
-                "content": message,
-            },
-        ]
-    }
-    
-    result = client.run(**data)
-    return result["result"]["response"]
